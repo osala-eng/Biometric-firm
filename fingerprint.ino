@@ -74,6 +74,19 @@ unsigned long beginMicros, endMicros;
 unsigned long byteCount = 0;
 bool printWebData = true;  // set to false for better speed measurement
 //---------------------- Ethenet Global End ------------------------
+
+//---------------------------GSM Global-----------------------------
+// Include the GSM library
+#include <GSM.h>
+#define PINNUMBER ""
+// initialize the library instance
+GSM gsmAccess;
+GSM_SMS sms;
+void setupGSM();
+void runGSM();
+//int readSerial(char result[]);
+//------------------------GSM Global End----------------------------
+
 void setup()
 {
   Wire.begin();
@@ -94,6 +107,7 @@ void setup()
   digitalWrite(buzzer, LOW);
 
   setupEthernet();
+  setupGSM();
   //Serial.println("\n\nAdafruit finger detect test");
 
   // set the data rate for the sensor serial port
