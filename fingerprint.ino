@@ -16,19 +16,23 @@
 
 //Modified by Osala
 
-#include <Adafruit_Fingerprint.h>
-#include <SoftwareSerial.h>
-#include <Wire.h>
+#include "Adafruit_Fingerprint.h"
+#include "SoftwareSerial.h"
+#include "Wire.h"
+#include "SPI.h"
+#include "Ethenet.h"
 
-
+//----------------------- Fingerprint Global -----------------------
 boolean trans = false;
 int sensorid = 0;
 const int red = 8;
 const int green = 4;
 const int txon = 6;
-void transmit();
+void transmit(); 
 void blinkred();
 void blinkgreen();
+void beepAfter1minute(); unsigned long beepNow,beepPrev,beepT = 150;
+unsigned long minNow,minPrev,minT = 1000*60; bool minState;
 void buzz2();
 void buzz3();
 void enrollnow();
@@ -41,11 +45,35 @@ const int switchButton = 7;
 int mode;
 uint8_t id;
 
-
 SoftwareSerial mySerial(2, 3);
 
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&Serial);
+//----------------------Fingerprint Global End----------------------
 
+//------------------------ Ethenet Global --------------------------
+void setupEthernet();
+void runEthernet();
+byte mac[] = { 0xDE, 0xED, 0xCE, 0xEF, 0xFE, 0xFF };
+
+// if you don't want to use DNS (and reduce your sketch size)
+// use the numeric IP instead of the name for the server:
+//IPAddress server(192,168,0,121);  // numeric IP for Google (no DNS)
+char server[] = "192.168.0.121";    // name address for Google (using DNS)
+
+// Set the static IP address to use if the DHCP fails to assign
+IPAddress ip(192, 168, 0, 177);
+IPAddress myDns(192, 168, 0, 1);
+
+// Initialize the Ethernet client library
+// with the IP address and port of the server
+// that you want to connect to (port 80 is default for HTTP):
+EthernetClient client;
+
+// Variables to measure the speed
+unsigned long beginMicros, endMicros;
+unsigned long byteCount = 0;
+bool printWebData = true;  // set to false for better speed measurement
+//---------------------- Ethenet Global End ------------------------
 void setup()
 {
   Wire.begin();
@@ -64,6 +92,8 @@ void setup()
   digitalWrite(red, LOW);
   digitalWrite(green, LOW);
   digitalWrite(buzzer, LOW);
+
+  setupEthernet();
   //Serial.println("\n\nAdafruit finger detect test");
 
   // set the data rate for the sensor serial port
@@ -103,6 +133,7 @@ void loop()                     // run over and over again
         getFingerprintIDez();
         blinkred();
         digitalWrite(green, HIGH);
+        runEthernet();
         // mode = digitalRead(switchButton);
         break;
       }
@@ -117,6 +148,7 @@ void loop()                     // run over and over again
         getFingerprintIDez();
         blinkred();
         digitalWrite(green, HIGH);
+        runEthernet();
         // mode = digitalRead(switchButton);
         break;
       }

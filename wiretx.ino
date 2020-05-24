@@ -61,3 +61,25 @@ void buzz3(){
   digitalWrite(buzzer, LOW);
   delay(50);
 }
+
+void beepAfter1minute(){
+  minNow = millis();
+  digitalWrite(buzzer, LOW);
+
+  if (minNow - minPrev >= minT){
+    minState = !minState;
+    minPrev = minNow;
+  }
+ 
+  if (minState == !minState){
+    for (size_t i = 0; i < 4; i++)
+    {
+      beepNow = millis();
+      if (beepNow - beepPrev >= beepT)
+      {
+        digitalWrite(buzzer, !(digitalRead(buzzer)));
+        beepPrev = beepNow;
+      }
+    }
+  }
+}
