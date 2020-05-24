@@ -20,7 +20,7 @@
 #include "SoftwareSerial.h"
 #include "Wire.h"
 #include "SPI.h"
-#include "Ethenet.h"
+#include "Ethernet.h"
 
 //----------------------- Fingerprint Global -----------------------
 boolean trans = false;
@@ -45,7 +45,7 @@ const int switchButton = 7;
 int mode;
 uint8_t id;
 
-SoftwareSerial mySerial(2, 3);
+//SoftwareSerial mySerial(2, 3);
 
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&Serial);
 //----------------------Fingerprint Global End----------------------
@@ -77,14 +77,11 @@ bool printWebData = true;  // set to false for better speed measurement
 
 //---------------------------GSM Global-----------------------------
 // Include the GSM library
-#include <GSM.h>
-#define PINNUMBER ""
-// initialize the library instance
-GSM gsmAccess;
-GSM_SMS sms;
-void setupGSM();
-void runGSM();
-//int readSerial(char result[]);
+SoftwareSerial sim800l(2, 3); 
+// RX,TX for Arduino and for the module it's TXD RXD, 
+//they should be inverted
+void sendSMS();
+
 //------------------------GSM Global End----------------------------
 
 void setup()
@@ -106,8 +103,8 @@ void setup()
   digitalWrite(green, LOW);
   digitalWrite(buzzer, LOW);
 
-  setupEthernet();
-  setupGSM();
+  //setupEthernet();
+  //setupGSM();
   //Serial.println("\n\nAdafruit finger detect test");
 
   // set the data rate for the sensor serial port
@@ -147,7 +144,7 @@ void loop()                     // run over and over again
         getFingerprintIDez();
         blinkred();
         digitalWrite(green, HIGH);
-        runEthernet();
+        //runEthernet();
         // mode = digitalRead(switchButton);
         break;
       }
@@ -162,7 +159,7 @@ void loop()                     // run over and over again
         getFingerprintIDez();
         blinkred();
         digitalWrite(green, HIGH);
-        runEthernet();
+        //runEthernet();
         // mode = digitalRead(switchButton);
         break;
       }
@@ -282,6 +279,8 @@ int getFingerprintIDez() {
       delay(20);
       digitalWrite(txon, LOW);
       buzz();
+      digitalWrite(txon, HIGH);
+      //sendSMS();
     }
     else {
       buzz2();

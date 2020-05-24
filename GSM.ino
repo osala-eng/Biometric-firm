@@ -1,65 +1,36 @@
 
 
 void setupGSM() {
-  //Serial.println("SMS Messages Sender");
-
-  // connection state
-  boolean notConnected = true;
-
-  // Start GSM shield
-  // If your SIM has PIN, pass it as a parameter of begin() in quotes
-  while (notConnected) {
-    if (gsmAccess.begin(PINNUMBER) == GSM_READY) {
-      notConnected = false;
-    } else {
-      //Serial.println("Not connected");
-      delay(1000);
-    }
-  }
-
-  //Serial.println("GSM initialized");
+  sim800l.begin(9600);   //Module baude rate, this is on max, it depends on the version
+  while (!sim800l){digitalWrite(red,HIGH);}
+  digitalWrite(red,LOW);
+  delay(1000);
 }
 
 void runGSM() {
-  /*
-  Serial.print("Enter a mobile number: ");
-  char remoteNum[20];  // telephone number to send sms
-  readSerial(remoteNum);
-  Serial.println(remoteNum);
+ 
+  //if (sim800l.available()){            //Displays on the serial monitor if there's a communication from the module
+  //  Serial.write(sim800l.read()); 
+  //}
 
-  // sms text
-  Serial.print("Now, enter SMS content: ");
-  char txtMsg[200];
-  readSerial(txtMsg);
-  Serial.println("SENDING");
-  Serial.println();
-  Serial.println("Message:");
-  Serial.println(txtMsg);
-
-  // send the message
-  sms.beginSMS(remoteNum);
-  sms.print(txtMsg);
-  sms.endSMS();
-  Serial.println("\nCOMPLETE!\n");*/
 }
 
-/*
-  Read input serial
+void sendSMS()
+{
+  const char phone = "+254790112652";
+  //Serial.println("Sending SMS...");               //Show this message on serial monitor
+  sim800l.print("AT+CMGF=1\r");                   //Set the module to SMS mode
+  delay(100);
+  sim800l.print("AT+CMGS=\"+254790112652\"\r");  
+  //Your phone number don't forget to include your country code, example +212123456789"
+  delay(500);
+  sim800l.print("SIM800l is working");       //This is the text to send to the phone number, don't make it too long or you have to modify the SoftwareSerial buffer
+  delay(500);
+  sim800l.print((char)26);// (required according to the datasheet)
+  delay(500);
+  sim800l.println();
+  //Serial.println("Text Sent.");
+  delay(500);
+
+}
  
-int readSerial(char result[]) {
-  int i = 0;
-  while (1) {
-    while (Serial.available() > 0) {
-      char inChar = Serial.read();
-      if (inChar == '\n') {
-        result[i] = '\0';
-        Serial.flush();
-        return 0;
-      }
-      if (inChar != '\r') {
-        result[i] = inChar;
-        i++;
-      }
-    }
-  }
-}*/
